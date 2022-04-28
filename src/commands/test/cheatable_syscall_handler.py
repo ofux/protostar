@@ -7,8 +7,12 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_definition import EntryPointType
 
+from src.commands.test.global_cheated_syscalls import GlobalCheatedSyscalls
+
 AddressType = int
 SelectorType = int
+
+global_cheats = GlobalCheatedSyscalls()
 
 
 class CheatcodeException(BaseException):
@@ -48,6 +52,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     def set_caller_address(self, addr):
         self.custom_caller_address = addr
 
+    def set_caller_address_for_contract(self, contract_addr: AddressType, caller_addr: AddressType):
+        global_cheats.set_caller_address_for_contract(contract_addr, caller_addr)
+    
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,
@@ -60,6 +67,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                 syscall_ptr=syscall_ptr,
             )
             return self.custom_caller_address
+        
+        if global_cheats.get_caller_address_for_contract(self.contract_address) is not None:
+            self._read_and_validate_syscall_request(
+                syscall_name="get_caller_address",
+                segments=segments,
+                syscall_ptr=syscall_ptr,
+            )
+            return global_cheats.get_caller_address_for_contract(self.contract_address)
         return super()._get_caller_address(segments, syscall_ptr)
 
     # mock_call

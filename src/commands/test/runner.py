@@ -260,6 +260,14 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.set_caller_address(None)
 
         @register_cheatcode
+        def start_prank_for_contract(contract_address: int, caller_address: int):
+            cheatable_syscall_handler.set_caller_address_for_contract(contract_address, caller_address)
+
+        @register_cheatcode
+        def stop_prank_for_contract(contract_address: int):
+            cheatable_syscall_handler.set_caller_address_for_contract(contract_address, None)
+
+        @register_cheatcode
         def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
             selector = get_selector_from_name(fn_name)
             cheatable_syscall_handler.register_mock_call(

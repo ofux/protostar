@@ -43,3 +43,14 @@ def test_expect_revert(protostar, copy_fixture):
         in result
     )
     assert "name: RANDOM_ERROR_NAME, message:" in result
+
+@pytest.mark.usefixtures("init")
+def test_prank(protostar, copy_fixture):
+    copy_fixture("access_control.cairo", "./src")
+    copy_fixture("test_prank.cairo", "./tests")
+
+    result = protostar(["test", "tests"])
+    print(result)
+
+    assert "Collected 2 items" in result
+    assert "2 passed" in result
